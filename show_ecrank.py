@@ -6,6 +6,8 @@ import glob
 from datetime import *
 import time
 import json
+from ast import literal_eval
+import os
 import types
 
 # DBディレクトリ名
@@ -72,9 +74,11 @@ def show(site):
         sql = 'select distinct data from ecrank where site="' + str(site_name) + '" and category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
         rows = cursor.execute(sql)
 
-        for i, row in enumerate(rows):
-            if i == 0:
-                datas.append(json.loads(row[0]))
+        for row in rows:
+            d = row[0]
+        #jd = json.loads(d)
+        jd = literal_eval(d)
+        datas.append(jd)
         
         # DB接続解除
         connect.close()
@@ -84,70 +88,6 @@ def show(site):
     #for data in datas:
     #    jdata = json.loads(data)
     #    print json.dumps(jdata, sort_keys = True, indent = 4)
-
-
-
-# make Excel file
-def makeExcel(filepath, site, category, period, datas, status):
-    workbook = xlsxwriter.Workbook(filepath)
-    worksheet = workbook.add_worksheet()
-    
-    # title
-    title_format = workbook.add_format()
-    title_format.set_font_size(18) 
-    title = ''
-    if (site == 'yahoo'):
-        title += u'Yahooショッピング '
-    if (site == 'rakuten'):
-        title += u'楽天市場 '
-    if (period == 'daily'):
-        title += u'デイリーランキング '
-    if (period == 'weekly'):
-        title += u'ウィークリーランキング '
-    if (period == 'realtime'):
-        title += u'リアルタイムランキング '
-    title += u'(' + unicode(category[0], 'utf-8') + u')'
-    worksheet.write('A1', title, title_format)
-    
-    merge_format = workbook.add_format({'align' : 'center', 'valign': 'vcenter'})
-    merge_format.set_text_wrap()
-    normal_format = workbook.add_format()
-    normal_format.set_text_wrap()
-    
-    for i in range(2, 42):
-        worksheet.set_row(i, 35)
-    worksheet.set_column(1, len(datas)*2, 16)
-
-    # rank
-    for i in range(0, 10):
-        worksheet.merge_range(i*4+2, 0, i*4+5, 0, i+1, merge_format)
-    
-    # datas
-    for i, row in enumerate(datas):
-        # timestamp
-        worksheet.merge_range(1, i*2+1, 1, i*2+2, unicode(unixtime2date(row[0][2]), 'utf-8'), merge_format)
-        
-        for j, column in enumerate(row):
-            # name
-            worksheet.merge_range(j*4+2, i*2+1, j*4+2, i*2+2, column[6], merge_format)
-            # image
-            if (site == 'yahoo'):
-                img_path = yahoo_imgpath + '/' + column[5] + '.jpg'
-            if (site == 'rakuten'):
-                img_path = rakuten_imgpath + '/' + column[5] + '.jpg'
-            worksheet.insert_image(j*4+3, i*2+1, img_path, {'x_scale':0.61, 'y_scale':0.66})
-            #worksheet.insert_image(j*4+3, i*2+1, img_path)
-            worksheet.merge_range(j*4+3, i*2+1, j*4+5, i*2+1, 'image', merge_format)
-            # store name
-            worksheet.write(j*4+3, i*2+2, column[8], normal_format)
-            # up, down, stay
-            worksheet.write(j*4+4, i*2+2, status[i][j], normal_format)
-            # price
-            worksheet.write(j*4+5, i*2+2, int(column[9]), normal_format)
-            
-            pass
-    
-    workbook.close()
 
 
 def main():

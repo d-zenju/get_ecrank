@@ -1,3 +1,4 @@
+% import string
 <!DOCTYPE html>
 <html>
     <head>
@@ -33,8 +34,8 @@
                     <td>{{jdata[d][i]['price']}}</td>
                     <td>{{jdata[d][i]['sales_rank']}}</td>
                     -->
-                    <td>{{jdata[d][i]['img_url']}}</td>
-                    <td><img src="data:image/png;base64,{{jdata[d][i]['img_data']}}" /></td>
+                    <td>{{jdata[d][i]['img_url'].replace('\/', '/')}}</td>
+                    <td><img src="data:image/png;base64,{{jdata[d][i]['img_data'].replace('\/', '/')}}" /></td>
                     % end
                 </tr>
                 % end

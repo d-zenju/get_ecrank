@@ -56,8 +56,9 @@ def main():
             print str(unixtime) + ' "Request get data: (site, categoryID): [' + str(url[0]) + ', ' + str(url[1]) + ']"'
 
             # request URL
-            jdatas = json.load(urllib2.urlopen(url[2]))
-            #print jdatas
+            jdatas = requests.get(url[2])
+            jdata = jdatas.json()
+            print jdatas
 
             # connect SQLite3
             sqlconnect = sqlite3.connect(dbname)
@@ -66,14 +67,9 @@ def main():
             # create table
             cursor.execute(create_table_sql)
 
-            #print type(jdatas[0])
-            #print jdatas[0]
-
             # save json data
-            values = (url[0], url[1], unixtime, str(jdatas[0]).decode('utf-8'))
+            values = (url[0], url[1], unixtime, str(jdata))
             cursor.execute(insert_sql, values)
-            
-            print values
 
             # commit SQLite3
             sqlconnect.commit()
