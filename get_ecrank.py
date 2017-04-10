@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import urllib2
-import json
 import sqlite3
 import time
 import datetime
@@ -40,7 +38,18 @@ create_table_sql = 'create table if not exists ecrank (site text, category_id te
 # SQLite3 Insert data
 insert_sql = 'insert into ecrank (site, category_id, unixtime, data) values (?, ?, ?, ?);'
 
+
 def main():
+    while True:
+        now_time = datetime.datetime.today()
+        minute = now_time.minute
+        second = now_time.second
+        if minute == 0 and second == 0:
+            print 'GET ECRANK: ' + str(now_time)
+            get_ecrank()
+
+
+def get_ecrank():
     # SQLite3 DB名 ("PATH + YEAR + MONTH".sqlite3)
     today = datetime.datetime.today()
     dbname = dbpath + str(today.year) + '-' + str(today.month) + '.sqlite3'
@@ -57,7 +66,6 @@ def main():
 
             # request URL
             jdatas = requests.get(url[2])
-            jdata = jdatas.json()
             print jdatas
 
             # connect SQLite3
@@ -68,9 +76,9 @@ def main():
             cursor.execute(create_table_sql)
 
             # save json data
-            values = (url[0], url[1], unixtime, str(jdata))
+            values = (url[0], url[1], unixtime, str(jdatas.json()))
             cursor.execute(insert_sql, values)
-
+            
             # commit SQLite3
             sqlconnect.commit()
 
