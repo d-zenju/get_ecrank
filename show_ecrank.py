@@ -9,6 +9,7 @@ import json
 from ast import literal_eval
 import os
 import types
+import string
 
 # DBディレクトリ名
 db_path = './*.sqlite3'
@@ -76,8 +77,12 @@ def show(site):
 
         for row in rows:
             d = row[0]
-        #jd = json.loads(d)
-        jd = literal_eval(d)
+
+        try:
+            jd = json.loads(d)
+        except:
+            jd = literal_eval(d)
+        
         datas.append(jd)
         
         # DB接続解除
