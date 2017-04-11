@@ -30,7 +30,7 @@ urls = [
 sleep_time = 2
 
 # SQLite3 ディレクトリ名
-dbpath = './'
+dbpath = './db/'
 
 # SQLite3 Create Table
 create_table_sql = 'create table if not exists ecrank (site text, category_id text, unixtime integer, data text);'

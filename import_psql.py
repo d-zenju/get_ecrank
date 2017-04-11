@@ -13,7 +13,7 @@ DATABASE_TABLE = 'ecrank'
 CSV_FILENAME = 'psql.csv'
 
 # DBディレクトリ名
-db_path = './*.sqlite3'
+db_path = './db/'
 
 # 取得日時フォーマット
 date_format = '%Y/%m/%d %H:00'
@@ -77,7 +77,7 @@ def csv2sqlite():
 # SQLite3のファイル名
 def sqlite_filename(unixtime):
     date = datetime.fromtimestamp(unixtime)
-    return str(date.year) + '-' + str(date.month) + '.sqlite3'
+    return db_path + str(date.year) + '-' + str(date.month) + '.sqlite3'
 
 
 # CSVファイル削除

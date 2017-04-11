@@ -12,7 +12,7 @@ import types
 import string
 
 # DBディレクトリ名
-db_path = './*.sqlite3'
+db_path = './db/'
 
 # Excelファイルパス
 excel_path = './result.xlsx'
@@ -66,7 +66,7 @@ def show(site):
 
     for utime in unixtime:
         # DBファイル名
-        db_name = sqlite_filename(int(utime))
+        db_name = db_path + sqlite_filename(int(utime))
 
         # DB接続
         connect = sqlite3.connect(db_name)
@@ -144,7 +144,9 @@ def list_dates(site):
     date_dict = {}
 
     # ディレクトリ内のsqlite3を探査
-    db_list = glob.glob(db_path)
+    dpath = db_path + "*.sqlite3"
+    print dpath
+    db_list = glob.glob(dpath)
 
     for db_name in db_list:
         # DB接続
