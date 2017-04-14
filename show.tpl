@@ -5,9 +5,8 @@
         <meta charset="UTF-8">
         <title>{{siteName}}ランキング</title>
         <style type="text/css">
-            ul {
-                display: -webkit-flex;
-                display: flex;
+            .box {
+                
             }
         </style>
     </head>
