@@ -30,6 +30,7 @@
     </head>
 
     <body onLoad="functionName()">
+    <h3>{{site_name}}ランキング</h3>
     <form name="formName" method="post" action="./pathToProgramFile">
     <p><!--選択肢その1-->
     <select name = "selectName1" onChange="functionName()">
@@ -38,7 +39,7 @@
         % end
     </select></p>
     <p><!--選択肢その2（選択肢その1の項目によって変化）-->
-    <select name = "selectName2" multiple>
+    <select name = "selectName2" size = "24" multiple>
     </select></p>
     <input type="hidden" name = "site_name" value = "{{site}}">
     <p>
