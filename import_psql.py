@@ -54,7 +54,7 @@ def csv2sqlite():
         # SQLite3ファイル名
         db_filename = sqlite_filename(int(unixtime))
 
-        print str(i) + ': inport datas --> ' + str(db_filename)
+        print str(i) + ': import datas --> ' + str(db_filename)
         
         # connect SQLite3
         sqlconnect = sqlite3.connect(db_filename)
