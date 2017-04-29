@@ -142,6 +142,7 @@ def list_dates(site):
     db_unixtimes = []
     date_dbname_list = []
     date_dict = {}
+    uniq_data_list = []
 
     # ディレクトリ内のsqlite3を探査
     dpath = db_path + "*.sqlite3"
@@ -166,7 +167,6 @@ def list_dates(site):
         # category_id一覧(重複なし)
         categories_id = list(set(categories))
 
-        uniq_data_list = []
         for ci in categories_id:
             dates_dict = {}
             for dl in dates_list:
@@ -177,6 +177,9 @@ def list_dates(site):
 
             for i, dd in enumerate(dd_key):
                 uniq_data_list.append([ci, dd_key[i], dd_value[i]])
+        
+    for d in uniq_data_list:
+        print d
 
     return categories_id, uniq_data_list
 
