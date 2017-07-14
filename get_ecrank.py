@@ -68,6 +68,9 @@ def get_ecrank():
             jdatas = requests.get(url[2])
             print jdatas
 
+            jsd = jdatas.json()
+            print jsd['Result']
+
             # connect SQLite3
             sqlconnect = sqlite3.connect(dbname)
             cursor = sqlconnect.cursor()

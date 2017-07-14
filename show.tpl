@@ -55,7 +55,7 @@
 </head>
 
 <body>
-    <h3>{{siteName}} ランキング ({{jdata[0][0]['category_id']}})</h3>
+    <h3>{{siteName}} ランキング ({{category_name[jdata[0][0]['category_id']]}})</h3>
     <table class="rank-table">
         <thead>
             <tr>

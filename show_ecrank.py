@@ -21,6 +21,24 @@ excel_path = './result.xlsx'
 date_format = '%Y/%m/%d %H:00'
 
 
+# カテゴリリスト
+category_name = {"amazon0000":"寝具",
+                "amazon0001":"枕・抱き枕",
+                "amazon0002":"布団セット",
+                "amaozn0003":"マットレス",
+                "amazon0004":"ベットパッド・敷きパッド",
+                "amazon0005":"敷きふとん",
+                "amazon0006":"掛けふとん",
+                "amazon0007":"寝具カバー・シーツ",
+                "amaozn0008":"毛布",
+                "amazon0009":"タオルケット・ガーゼケット",
+                "amazon0010":"キッズ・ジュニア用寝具",
+                "amazon0011":"カーテン",
+                "amazon0012":"レースカーテン",
+                "amazon0013":"ラグ・カーペット",
+                "amazon0014":"クッション・クッションカバー"}
+
+
 # Webアプリケーション(get: category_id, unixtime)
 @get('/show/:site')
 def select(site):
@@ -88,7 +106,7 @@ def show(site):
         # DB接続解除
         connect.close()
 
-    return template('show', siteName=siteName, jdata=datas, dates=dates)
+    return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
 
     #for data in datas:
     #    jdata = json.loads(data)
