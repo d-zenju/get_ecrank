@@ -12,7 +12,9 @@ import types
 import string
 
 # DBディレクトリ名
-db_path = './db/'
+amazon_db_path = './db/'
+yahoo_db_path = './rakuten_yahoo/db/'
+rakuten_db_path = './rakuten_yahoo/db/'
 
 # Excelファイルパス
 excel_path = './result.xlsx'
@@ -66,6 +68,7 @@ def show(site):
     category_id = request.forms.get('selectName1')
     unixtime = request.forms.getall('selectName2')
 
+
     dates = []
     for utime in unixtime:
         dates.append(datetime.fromtimestamp(int(utime)).strftime(date_format))
@@ -84,29 +87,43 @@ def show(site):
 
     for utime in unixtime:
         # DBファイル名
-        db_name = db_path + sqlite_filename(int(utime))
+        if (site_name == 'amazon'):
+            db_name = amazon_db_path + sqlite_filename(int(utime))
+        elif (site_name == 'yahoo'):
+            db_name = yahoo_db_path + sqlite_filename(int(utime))
+        elif (site_name == 'rakuten'):
+            db_name = rakuten_db_path + sqlite_filename(int(utime))
+        print db_name
 
         # DB接続
         connect = sqlite3.connect(db_name)
         cursor = connect.cursor()
 
-        sql = 'select distinct data from ecrank where site="' + str(site_name) + '" and category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
+        if (site_name == 'amazon'):
+            sql = 'select distinct data from ecrank where site="' + str(site_name) + '" and category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
+        else:
+            sql = 'select distinct * from ' + str(site_name) + ' where category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
+    
         rows = cursor.execute(sql)
 
-        for row in rows:
-            d = row[0]
+        if (site_name == 'amazon'):
+            for row in rows:
+                d = row[0]
 
-        try:
-            jd = json.loads(d)
-        except:
-            jd = literal_eval(d)
+            try:
+                jd = json.loads(d)
+            except:
+                jd = literal_eval(d)
         
-        datas.append(jd)
+            datas.append(jd)
         
-        # DB接続解除
-        connect.close()
+            # DB接続解除
+            connect.close()
 
-    return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
+            return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
+
+        else:
+            return template('show_ry', siteName=siteName, rows=rows, dates=dates)
 
     #for data in datas:
     #    jdata = json.loads(data)
@@ -114,38 +131,35 @@ def show(site):
 
 
 def main():
-    site = 'amazon'
-    site_name = 'amazon'
-    category_id = 'amazon0000'
-    unixtime = [1491138105]
-
-    # 特定のサイトの取得日時とDB名を取得する
-    categories, dates = list_dates(site)
-
-    datas = []
+    site = 'yahoo'
+    site_name = 'yahoo'
+    category_id = 'yahoo0012'
+    unixtime = [1502262918]
 
     for utime in unixtime:
         # DBファイル名
-        db_name = sqlite_filename(int(utime))
+        if (site == 'amazon'):
+            db_name = amazon_db_path + sqlite_filename(int(utime))
+        elif (site == 'yahoo'):
+            db_name = yahoo_db_path + sqlite_filename(int(utime))
+        elif (site == 'rakuten'):
+            db_name = rakuten_db_path + sqlite_filename(int(utime))
+        print db_name
 
-        # DB接続
-        connect = sqlite3.connect(db_name)
-        cursor = connect.cursor()
+    # DB接続
+    connect = sqlite3.connect(db_name)
+    cursor = connect.cursor()
 
+    if (site == 'amazon'):
         sql = 'select distinct data from ecrank where site="' + str(site_name) + '" and category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
-        rows = cursor.execute(sql)
-
-        for i, row in enumerate(rows):
-            data = row[0]
-            if i == 0:
-                print json.loads(data)
-        
-        # DB接続解除
-        connect.close()
+    else:
+        sql = 'select distinct * from ' + str(site) + ' where category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '" order by rank asc'
     
-    for data in datas:
-        for d in data:
-            print type(d)
+    print sql
+    rows = cursor.execute(sql)
+
+    for row in rows:
+        print row
 
 
 # SQLite3のファイル名
@@ -163,7 +177,12 @@ def list_dates(site):
     uniq_data_list = []
 
     # ディレクトリ内のsqlite3を探査
-    dpath = db_path + "*.sqlite3"
+    if (site == 'amazon'):
+        dpath = amazon_db_path + "*.sqlite3"
+    elif (site == 'yahoo'):
+        dpath = yahoo_db_path + "*.sqlite3"
+    elif (site == 'rakuten'):
+        dpath = rakuten_db_path + "*.sqlite3"
     print dpath
     db_list = glob.glob(dpath)
 
@@ -173,7 +192,12 @@ def list_dates(site):
         cursor = connect.cursor()
 
         # category_id, unixtime一覧取得
-        sql = 'select distinct category_id, unixtime from ecrank where site="' + str(site) + '" order by category_id asc, unixtime asc'
+        if (site == 'amazon'):
+            sql = 'select distinct category_id, unixtime from ecrank where site="' + str(site) + '" order by category_id asc, unixtime asc'
+        else:
+            sql = 'select distinct category_id, unixtime from ' + str(site) + ' order by category_id asc, unixtime asc'
+        
+        print sql
         rows = cursor.execute(sql)
 
         dates_list = []
