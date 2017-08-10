@@ -55,23 +55,35 @@
 </head>
 
 <body>
-    <h3>{{siteName}} ランキング</h3>
-    % for row in rows:
-        <p>0: {{row[0]}}</p>
-        <p>1: {{row[1]}}</p>
-        <p>2: {{row[2]}}</p>
-        <p>3: {{row[3]}}</p>
-        <p>4: {{row[4]}}</p>
-        <p>5: {{row[5]}}</p>
-        <p>6: {{row[6]}}</p>
-        <p>7: {{row[7]}}</p>
-        <p>8: {{row[8]}}</p>
-        <p>9: {{row[9]}}</p>
-        <p>10: {{row[10]}}</p>
-        <p>11: {{row[11]}}</p>
-        <p>12: {{row[12]}}</p>
-        <p>13: {{row[13]}}</p>
-        <img src="data:image/png;base64,{{row[14]}}" class="left">
-    % end
+    <h3>{{siteName}}ランキング {{rows[0][0][3]}} ({{rows[0][0][4]}})</h3>
+    <table class="rank-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                % for date in dates:
+                    <th>{{date}}</th>
+                % end
+            </th>
+        </thead>
+        <tbody>
+        % for i in range(10):
+            <tr>
+                <th>{{i+1}}</th>
+                % for d in range(len(dates)):
+                    <td>
+                        <div class="title"><a href="{{rows[d][i][8]}}">{{rows[d][i][9]}}</a></div>
+                        <div class="cbr"></div>
+                        <a href="{{rows[d][i][8]}}"><img src="{{rows[d][i][13]}}" class="left"></a>
+                        <div class="casin">{{rows[d][i][7]}}</div>
+                        <div class="cbr"></div>
+                        <a href="{{rows[d][i][11]}}"><div class="cshopname">{{rows[d][i][10]}}</div></a>
+                        <div class="cbr"></div>
+                        <div class="cprice">¥{{rows[d][i][12]}}</div>
+                    </td>
+                % end
+            </tr>
+        % end
+        </tbody>
+    </table>
 </body>
 </html>

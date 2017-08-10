@@ -102,7 +102,7 @@ def show(site):
         if (site_name == 'amazon'):
             sql = 'select distinct data from ecrank where site="' + str(site_name) + '" and category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
         else:
-            sql = 'select distinct * from ' + str(site_name) + ' where category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '"'
+            sql = 'select distinct * from ' + str(site_name) + ' where category_id="' + str(category_id) + '" and unixtime="' + str(utime) + '" and period="daily"'
     
         rows = cursor.execute(sql)
 
@@ -117,13 +117,20 @@ def show(site):
         
             datas.append(jd)
         
-            # DB接続解除
-            connect.close()
-
-            return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
-
         else:
-            return template('show_ry', siteName=siteName, rows=rows, dates=dates)
+            d = []
+            for row in rows:
+                d.append(row)
+            datas.append(d)
+
+        # DB接続解除
+        connect.close()
+        
+
+    if (site_name == 'amazon'):
+        return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
+    else:
+         return template('show_ry', siteName=siteName, rows=datas, dates=dates)
 
     #for data in datas:
     #    jdata = json.loads(data)
