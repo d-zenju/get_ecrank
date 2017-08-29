@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{{siteName}}ランキング {{jdata[0][0]['category_id']}}</title>
+    <title>{{siteName}}ランキング</title>
     <style type="text/css">
         img.left {
             float: left;
@@ -55,7 +55,7 @@
 </head>
 
 <body>
-    <h3>{{siteName}} ランキング ({{category_name[jdata[0][0]['category_id']]}})</h3>
+    <h3>{{siteName}}ランキング {{rows[0][0][3]}} ({{rows[0][0][4]}})</h3>
     <table class="rank-table">
         <thead>
             <tr>
@@ -66,24 +66,24 @@
             </th>
         </thead>
         <tbody>
-            % for i in range(10):
-                <tr>
-                    <th>{{i+1}}</th>
-                    % for d in range(len(dates)):
-                        <td>
-                            <div class="title"><a href="{{jdata[d][i]['url']}}">{{jdata[d][i]['title']}}</a></div>
-                            <div class="cbr"></div>
-                            <a href="{{jdata[d][i]['url']}}"><img src="data:image/png;base64,{{jdata[d][i]['img_data']}}" class="left"></a>
-                            <div class="casin">{{jdata[d][i]['asin']}}</div>
-                            <div class="cbr"></div>
-                            <div class="cshopname">{{jdata[d][i]['shop']}}</div>
-                            <div class="cbr"></div>
-                            <div class="csalesrank">SR: {{jdata[d][i]['sales_rank']}}位</div>
-                            <div class="cprice">¥{{jdata[d][i]['price']}}</div>
-                        </td>
-                    % end
-                </tr>
-            % end
+        % for i in range(10):
+            <tr>
+                <th>{{i+1}}</th>
+                % for d in range(len(dates)):
+                    <td>
+                        <div class="title"><a href="{{rows[d][i][8]}}">{{rows[d][i][9]}}</a></div>
+                        <div class="cbr"></div>
+                        <a href="{{rows[d][i][8]}}"><img src="{{rows[d][i][13]}}" class="left"></a>
+                        <div class="casin">{{rows[d][i][7]}}</div>
+                        <div class="cbr"></div>
+                        <a href="{{rows[d][i][11]}}"><div class="cshopname">{{rows[d][i][10]}}</div></a>
+                        <div class="cbr"></div>
+                        <div class="cprice">¥{{rows[d][i][12]}}</div>
+                        <p>{{rows[d][i][6]}}, {{rows[d][i][5]}}</p>
+                    </td>
+                % end
+            </tr>
+        % end
         </tbody>
     </table>
 </body>

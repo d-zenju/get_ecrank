@@ -20,7 +20,8 @@ rakuten_db_path = './rakuten_yahoo/db/'
 excel_path = './result.xlsx'
 
 # 取得日時フォーマット
-date_format = '%Y/%m/%d %H:00'
+# date_format = '%Y/%m/%d %H:00'
+date_format = '%Y/%m/%d'
 
 
 # カテゴリリスト
@@ -38,7 +39,11 @@ category_name = {"amazon0000":"寝具",
                 "amazon0011":"カーテン",
                 "amazon0012":"レースカーテン",
                 "amazon0013":"ラグ・カーペット",
-                "amazon0014":"クッション・クッションカバー"}
+                "amazon0014":"クッション・クッションカバー",
+                "amazon0015":"ベッド",
+                "amazon0016":"ソファ・カウチ",
+                "amazon0017":"ソファベッド",
+                "amazon0018":"ラグ・カーペット・マット"}
 
 
 # Webアプリケーション(get: category_id, unixtime)
@@ -130,7 +135,7 @@ def show(site):
     if (site_name == 'amazon'):
         return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
     else:
-         return template('show_ry', siteName=siteName, rows=datas, dates=dates)
+        return template('show_ry', siteName=siteName, rows=datas, dates=dates)
 
     #for data in datas:
     #    jdata = json.loads(data)
