@@ -12,6 +12,7 @@ import types
 import string
 import base64
 import io
+import urllib2
 
 # DBディレクトリ名
 amazon_db_path = './db/'
@@ -20,6 +21,7 @@ rakuten_db_path = './rakuten_yahoo/db/'
 
 # Excelファイルパス
 xlsx_path = './xlsx_files/'
+xlsx_path_ry = './rakuten_yahoo/xlsx_files/'
 
 # 取得日時フォーマット
 #date_format = '%Y/%m/%d %H:00'
@@ -132,12 +134,12 @@ def show(site):
 
         # DB接続解除
         connect.close()
-    
-    make_xlsx_amazon(datas, dates)
 
     if (site_name == 'amazon'):
+        make_xlsx_amazon(datas, dates)
         return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
     else:
+        make_xlsx_rakuten_yahoo(site_name, datas, dates)
         return template('show_ry', siteName=siteName, rows=datas, dates=dates)
 
     #for data in datas:
@@ -296,6 +298,7 @@ def make_xlsx_amazon(jdatas, dates):
     ## date
     date_format = workbook.add_format()
     date_format.set_align('center')
+    date_format.set_align('vcenter')
     date_format.set_bold()
     date_format.set_border(1)
     ## price
@@ -303,11 +306,13 @@ def make_xlsx_amazon(jdatas, dates):
     price_format.set_font_color('red')
     price_format.set_num_format(u'¥#,##0')
     price_format.set_align('center')
+    price_format.set_align('vcenter')
     price_format.set_right(1)
     price_format.set_bottom(1)
     ## default
     default_format = workbook.add_format()
     default_format.set_align('center')
+    default_format.set_align('vcenter')
     default_format.set_right(1)
     ## category title
     category_title_format = workbook.add_format()
@@ -315,7 +320,12 @@ def make_xlsx_amazon(jdatas, dates):
     ## rank 10 image(bottom)
     bottom_format = workbook.add_format()
     bottom_format.set_bottom(1)
-
+    bottom_format.set_align('center')
+    bottom_format.set_align('vcenter')
+    ## image
+    image_format = workbook.add_format()
+    image_format.set_align('center')
+    image_format.set_align('vcenter')
 
     # category title
     category_title = 'Amazon.co.jp 週別売上カテゴリランキング （' + category_name[jdatas[0][0]['category_id']] + '）'
@@ -344,6 +354,109 @@ def make_xlsx_amazon(jdatas, dates):
     worksheet.write(2, 0, 'Rank', rank_format)
     for rank in range(10):
         worksheet.merge_range(3+5*rank, 0, 7+5*rank, 0, rank+1, rank_format)
+
+    workbook.close()
+
+
+# Excel(xlsx)ファイル出力(Rakuten, Yahoo!)
+def make_xlsx_rakuten_yahoo(site_name, datas, dates):
+    if (site_name == 'rakuten'):
+        filename = xlsx_path_ry + u'楽天_' + datas[0][0][3] + u'.xlsx'
+    else:        
+        filename = xlsx_path_ry + u'Yahoo_' + datas[0][0][3] + u'.xlsx'
+    workbook = xlsxwriter.Workbook(filename)
+    worksheet = workbook.add_worksheet()
+
+    # column size
+    ## rank
+    worksheet.set_column(0, 0, 5)
+    ## columns
+    for i in range(100):
+        worksheet.set_column(i*2+1, i*2+1, 14)
+        worksheet.set_column(i*2+2, i*2+2, 25)
+    ## rows
+    for i in range(10):
+        worksheet.set_row(3+i*4, 54)
+        worksheet.set_row(4+i*4, 30)
+        worksheet.set_row(5+i*4, 30)
+        worksheet.set_row(6+i*4, 30)
+    
+    # format
+    ## item title
+    item_title_format = workbook.add_format()
+    item_title_format.set_text_wrap()
+    item_title_format.set_align('vcenter')
+    item_title_format.set_font_color('blue')
+    item_title_format.set_right(1)
+    item_title_format.set_top(1)
+    ## rank
+    rank_format = workbook.add_format()
+    rank_format.set_align('center')
+    rank_format.set_align('vcenter')
+    rank_format.set_bold()
+    rank_format.set_border(1)
+    ## date
+    date_format = workbook.add_format()
+    date_format.set_align('center')
+    date_format.set_align('vcenter')
+    date_format.set_bold()
+    date_format.set_border(1)
+    ## price
+    price_format = workbook.add_format()
+    price_format.set_font_color('red')
+    price_format.set_num_format(u'¥#,##0')
+    price_format.set_align('center')
+    price_format.set_align('vcenter')
+    price_format.set_right(1)
+    price_format.set_bottom(1)
+    ## default
+    default_format = workbook.add_format()
+    default_format.set_align('center')
+    default_format.set_align('vcenter')
+    default_format.set_right(1)
+    ## category title
+    category_title_format = workbook.add_format()
+    category_title_format.set_font_size(16)
+    ## rank 10 image(bottom)
+    bottom_format = workbook.add_format()
+    bottom_format.set_bottom(1)
+    bottom_format.set_align('center')
+    bottom_format.set_align('vcenter')
+    ## image
+    image_format = workbook.add_format()
+    image_format.set_align('center')
+    image_format.set_align('vcenter')
+
+    # category title
+    if(site_name == 'rakuten'):
+        category_title = u'楽天市場 週別売上カテゴリランキング （' + datas[0][0][3] + u'）'
+    else:
+        category_title = u'Yahoo!ショッピング 週別売上カテゴリランキング （' + datas[0][0][3] + u'）'
+
+    worksheet.write(0, 0, category_title, category_title_format)
+
+    # date
+    for col, date in enumerate(dates):
+        worksheet.merge_range(2, 1+2*col, 2, 2+2*col, date, date_format)
+    
+    # item
+    for row in range(10):
+        for col in range(len(dates)):
+            worksheet.merge_range(3+4*row, 1+2*col, 3+4*row, 2+2*col, datas[col][row][9], item_title_format)
+            worksheet.write(4+4*row, 2+2*col, datas[col][row][7], default_format)
+            worksheet.write(5+4*row, 2+2*col, datas[col][row][10], default_format)
+            worksheet.write(6+4*row, 2+2*col, int(datas[col][row][12]), price_format)
+            if row is 9:
+                worksheet.merge_range(4+4*row, 1+2*col, 6+4*row, 1+2*col, '', bottom_format)
+            else:
+                worksheet.merge_range(4+4*row, 1+2*col, 6+4*row, 1+2*col, '')
+            img = io.BytesIO(urllib2.urlopen(datas[col][row][13]).read())
+            worksheet.insert_image(4+4*row, 1+2*col, datas[col][row][13], {'image_data': img, 'x_scale': 0.6, 'y_scale':0.6, 'x_offset': 1, 'y_offset': 1})
+            
+    # rank
+    worksheet.write(2, 0, 'Rank', rank_format)
+    for rank in range(10):
+        worksheet.merge_range(3+4*rank, 0, 6+4*rank, 0, rank+1, rank_format)
 
     workbook.close()
 
