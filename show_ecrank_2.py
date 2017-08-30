@@ -10,6 +10,8 @@ from ast import literal_eval
 import os
 import types
 import string
+import base64
+import io
 
 # DBディレクトリ名
 amazon_db_path = './db/'
@@ -17,14 +19,11 @@ yahoo_db_path = './rakuten_yahoo/db/'
 rakuten_db_path = './rakuten_yahoo/db/'
 
 # Excelファイルパス
-excel_path = './result.xlsx'
+xlsx_path = './xlsx_files/'
 
 # 取得日時フォーマット
-# date_format = '%Y/%m/%d %H:00'
+#date_format = '%Y/%m/%d %H:00'
 date_format = '%Y/%m/%d'
-
-# xlsxファイルディレクトリ名
-xlsx_path = './xlsx/'
 
 
 # カテゴリリスト
@@ -133,7 +132,8 @@ def show(site):
 
         # DB接続解除
         connect.close()
-        
+    
+    make_xlsx_amazon(datas, dates)
 
     if (site_name == 'amazon'):
         return template('show', siteName=siteName, jdata=datas, dates=dates, category_name=category_name)
@@ -143,7 +143,7 @@ def show(site):
     #for data in datas:
     #    jdata = json.loads(data)
     #    print json.dumps(jdata, sort_keys = True, indent = 4)
-
+    print 'show'
 
 def main():
     site = 'yahoo'
@@ -257,7 +257,99 @@ def uniq_unixtime(dates, format):
     return unixtimes
 
 
+# Excel(xlsx)ファイル出力
+def make_xlsx_amazon(jdatas, dates):
+    filename = xlsx_path + 'Amazon_' + category_name[jdatas[0][0]['category_id']] + '.xlsx'
+
+    workbook = xlsxwriter.Workbook(filename)
+    worksheet = workbook.add_worksheet()
+
+    # column size
+    ## rank
+    worksheet.set_column(0, 0, 5)
+    ## columns
+    for i in range(100):
+        worksheet.set_column(i*2+1, i*2+1, 14)
+        worksheet.set_column(i*2+2, i*2+2, 25)
+    ## rows
+    for i in range(10):
+        worksheet.set_row(3+i*5, 54)
+        worksheet.set_row(4+i*5, 20)
+        worksheet.set_row(5+i*5, 20)
+        worksheet.set_row(6+i*5, 20)
+        worksheet.set_row(7+i*5, 20)
+    
+    # format
+    ## item title
+    item_title_format = workbook.add_format()
+    item_title_format.set_text_wrap()
+    item_title_format.set_align('vcenter')
+    item_title_format.set_font_color('blue')
+    item_title_format.set_right(1)
+    item_title_format.set_top(1)
+    ## rank
+    rank_format = workbook.add_format()
+    rank_format.set_align('center')
+    rank_format.set_align('vcenter')
+    rank_format.set_bold()
+    rank_format.set_border(1)
+    ## date
+    date_format = workbook.add_format()
+    date_format.set_align('center')
+    date_format.set_bold()
+    date_format.set_border(1)
+    ## price
+    price_format = workbook.add_format()
+    price_format.set_font_color('red')
+    price_format.set_num_format(u'¥#,##0')
+    price_format.set_align('center')
+    price_format.set_right(1)
+    price_format.set_bottom(1)
+    ## default
+    default_format = workbook.add_format()
+    default_format.set_align('center')
+    default_format.set_right(1)
+    ## category title
+    category_title_format = workbook.add_format()
+    category_title_format.set_font_size(16)
+    ## rank 10 image(bottom)
+    bottom_format = workbook.add_format()
+    bottom_format.set_bottom(1)
+
+
+    # category title
+    category_title = 'Amazon.co.jp 週別売上カテゴリランキング （' + category_name[jdatas[0][0]['category_id']] + '）'
+    worksheet.write(0, 0, category_title.decode('utf-8'), category_title_format)
+
+    # date
+    for col, date in enumerate(dates):
+        worksheet.merge_range(2, 1+2*col, 2, 2+2*col, date, date_format)
+    
+    # item
+    for row in range(10):
+        for col in range(len(dates)):
+            worksheet.merge_range(3+5*row, 1+2*col, 3+5*row, 2+2*col, jdatas[col][row]['title'], item_title_format)
+            worksheet.write(4+5*row, 2+2*col, jdatas[col][row]['asin'], default_format)
+            worksheet.write(5+5*row, 2+2*col, jdatas[col][row]['shop'], default_format)
+            worksheet.write(6+5*row, 2+2*col, 'SR: ' + jdatas[col][row]['sales_rank'], default_format)
+            worksheet.write(7+5*row, 2+2*col, int(jdatas[col][row]['price']), price_format)
+            if row is 9:
+                worksheet.merge_range(4+5*row, 1+2*col, 7+5*row, 1+2*col, '', bottom_format)
+            else:
+                worksheet.merge_range(4+5*row, 1+2*col, 7+5*row, 1+2*col, '')
+            img = io.BytesIO(base64.b64decode(jdatas[col][row]['img_data']))
+            worksheet.insert_image(4+5*row, 1+2*col, jdatas[col][row]['img_url'], {'image_data': img, 'x_scale': 0.6, 'y_scale':0.6, 'x_offset': 1, 'y_offset': 1})
+
+    # rank
+    worksheet.write(2, 0, 'Rank', rank_format)
+    for rank in range(10):
+        worksheet.merge_range(3+5*rank, 0, 7+5*rank, 0, rank+1, rank_format)
+
+    workbook.close()
+
+
 run(host='localhost', port=8080, debug=True, reloader=False)
+
 
 if __name__ == '__main__':
     main()
